@@ -1,3 +1,6 @@
 .venv/
 # .vscode/
 # *.pt
+routine.sh
+git_upload.sh
+RL_Robotics_Study_and_Project_Roadmap.pdf
