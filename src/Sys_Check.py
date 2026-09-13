@@ -34,22 +34,23 @@ def check_robotics_dependencies():
     # 2. Python Packages
     print("\n--- 2. Core Packages ---")
     packages = {
-        "torch": "PyTorch",
-        "gymnasium": "Gymnasium",
+        "numpy": "NumPy\t\t",
+        "matplotlib": "Matplotlib\t",
+        "torch": "PyTorch\t\t",
+        "pygame": "Pygame\t\t",
+        "gymnasium": "Gymnasium\t",
         "stable_baselines3": "Stable-Baselines3",
-        "mujoco": "MuJoCo Physics",
-        "onnxruntime": "ONNX Runtime (Deployment)",
-        "pygame": "Pygame (2D Rendering)",
-        "matplotlib": "Matplotlib (Plotting)",
-        "numpy": "NumPy",
+        "mujoco": "MuJoCo Physics\t",
+        "onnxruntime": "ONNX Runtime\t",
     }
+    os.environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "1"
 
     installed = {}
     for module, name in packages.items():
         try:
             mod = importlib.import_module(module)
             version = getattr(mod, "__version__", "Installed")
-            print_status("OK", f"{name} (v{version})")
+            print_status("OK", f"{name}: v{version}")
             installed[module] = True
         except ImportError:
             print_status("FAIL", f"{name} is missing! (pip install {module})")
@@ -62,45 +63,14 @@ def check_robotics_dependencies():
 
         if torch.cuda.is_available():
             gpu_name = torch.cuda.get_device_name(0)
-            print_status("OK", f"PyTorch CUDA active. GPU: {gpu_name}")
+            print_status("OK", f"PyTorch CUDA active.\n       GPU: {gpu_name}")
         else:
             print_status(
                 "WARN", "CUDA unavailable. Training will execute on CPU."
             )
 
-    # 4. Low-Level MuJoCo Engine & GL Check
-    print("\n--- 4. MuJoCo Dynamic Engine & Rendering ---")
-    if installed.get("mujoco"):
-        import mujoco
-
-        # Check C++ MJCF Parser
-        test_xml = '<mujoco><worldbody><body name="b"><freejoint/><geom type="sphere" size="0.1"/></body></worldbody></mujoco>'
-        try:
-            m = mujoco.MjModel.from_xml_string(test_xml)
-            d = mujoco.MjData(m)
-            mujoco.mj_step(m, d)
-            print_status("OK", "MuJoCo C++ engine & MJCF string parser active.")
-        except Exception as e:
-            print_status("FAIL", f"MuJoCo engine failure: {e}")
-
-        # Check Offscreen Rendering Engine
-        try:
-            renderer = mujoco.Renderer(m, height=240, width=320)
-            renderer.update_scene(d)
-            _ = renderer.render()
-            gl_backend = os.environ.get("MUJOCO_GL", "default")
-            print_status(
-                "OK", f"MuJoCo Offscreen Renderer functional (Backend: {gl_backend})."
-            )
-            renderer.close()
-        except Exception as e:
-            print_status(
-                "WARN",
-                f"MuJoCo rendering warning: {e}. Try setting 'export MUJOCO_GL=egl' or 'glfw'.",
-            )
-
-    # 5. Continuous Gymnasium & PPO Framework
-    print("\n--- 5. SB3 & Gym Integration ---")
+    # 4. Continuous Gymnasium & PPO Framework
+    print("\n--- 4. SB3 & Gym Integration ---")
     if installed.get("gymnasium") and installed.get("stable_baselines3"):
         import gymnasium as gym
         from stable_baselines3 import SAC
@@ -117,6 +87,38 @@ def check_robotics_dependencies():
             print_status(
                 "FAIL", f"Continuous environment initialization failed: {e}"
             )
+
+    # 5. Low-Level MuJoCo Engine & GL Check
+    print("\n--- 5. MuJoCo Dynamic Engine & Rendering ---")
+    if installed.get("mujoco"):
+        import mujoco
+
+        # Check C++ MJCF Parser
+        test_xml = '<mujoco><worldbody><body name="b"><freejoint/><geom type="sphere" size="0.1"/></body></worldbody></mujoco>'
+        try:
+            m = mujoco.MjModel.from_xml_string(test_xml)
+            d = mujoco.MjData(m)
+            mujoco.mj_step(m, d)
+            print_status("OK", "C++ engine & MJCF active.")
+        except Exception as e:
+            print_status("FAIL", f"MuJoCo engine failure: {e}")
+
+        # Check Offscreen Rendering Engine
+        try:
+            renderer = mujoco.Renderer(m, height=240, width=320)
+            renderer.update_scene(d)
+            _ = renderer.render()
+            gl_backend = os.environ.get("MUJOCO_GL", "default")
+            print_status(
+                "OK", f"Offscreen Renderer functional (Backend: {gl_backend})."
+            )
+            renderer.close()
+        except Exception as e:
+            print_status(
+                "WARN",
+                f"MuJoCo rendering warning: {e}. Try setting 'export MUJOCO_GL=egl' or 'glfw'.",
+            )
+
 
     print("\n========================================")
     print("Diagnosis Complete.")
