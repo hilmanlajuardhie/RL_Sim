@@ -23,7 +23,7 @@ def check_robotics_dependencies():
     print("========================================\n")
 
     # 1. Python Version
-    print("--- 1. Python Environment ---")
+    print("----- 1. Python Environment -----")
     py_ver = sys.version_info
     py_str = f"{py_ver.major}.{py_ver.minor}.{py_ver.micro}"
     if py_ver >= (3, 10):
@@ -32,7 +32,7 @@ def check_robotics_dependencies():
         print_status("WARN", f"Python version is {py_str} (3.10+ recommended).")
 
     # 2. Python Packages
-    print("\n--- 2. Core Packages ---")
+    print("\n----- 2. Core Packages -----")
     packages = {
         "numpy": "NumPy\t\t",
         "matplotlib": "Matplotlib\t",
@@ -57,39 +57,39 @@ def check_robotics_dependencies():
             installed[module] = False
 
     # 3. Hardware & CUDA
-    print("\n--- 3. Hardware Acceleration ---")
-    if installed.get("torch"):
+    print("\n----- 3. Hardware Acceleration -----")
+    try:
         import torch
-
         if torch.cuda.is_available():
             gpu_name = torch.cuda.get_device_name(0)
             print_status("OK", f"PyTorch CUDA active.\n       GPU: {gpu_name}")
         else:
-            print_status(
-                "WARN", "CUDA unavailable. Training will execute on CPU."
-            )
+            print_status("WARN", "PyTorch CUDA is NOT available. YOLO inference will run on CPU.")
+    except ImportError:
+        print_status("FAIL", "Skipping CUDA check because PyTorch is not installed.")
 
     # 4. Continuous Gymnasium & PPO Framework
-    print("\n--- 4. SB3 & Gym Integration ---")
+    print("\n----- 8. SB3 & Gym Integration -----")
     if installed.get("gymnasium") and installed.get("stable_baselines3"):
         import gymnasium as gym
-        from stable_baselines3 import SAC
+        from stable_baselines3 import PPO
 
         try:
-            env = gym.make("InvertedPendulum-v5")
-            model = SAC("MlpPolicy", env, device="cpu", verbose=0)
+            env_name = "Humanoid-v5"
+            env = gym.make(env_name)
+            model = PPO("MlpPolicy", env, device="cpu", verbose=0)
             print_status(
                 "OK",
-                "Continuous control (SAC + InvertedPendulum-v5) initialized.",
+                f"Environment initialized: {env_name} + {model.__class__.__name__}.",
             )
             env.close()
         except Exception as e:
             print_status(
-                "FAIL", f"Continuous environment initialization failed: {e}"
+                "FAIL", f"environment initialization failed: {e}"
             )
 
     # 5. Low-Level MuJoCo Engine & GL Check
-    print("\n--- 5. MuJoCo Dynamic Engine & Rendering ---")
+    print("\n----- 5. MuJoCo Dynamic Engine & Rendering -----")
     if installed.get("mujoco"):
         import mujoco
 
