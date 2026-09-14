@@ -1,6 +1,6 @@
-import importlib
 import os
 import sys
+import importlib
 
 GREEN = "\033[92m"
 RED = "\033[91m"
@@ -119,6 +119,49 @@ def check_robotics_dependencies():
                 f"MuJoCo rendering warning: {e}. Try setting 'export MUJOCO_GL=egl' or 'glfw'.",
             )
 
+    # 6. ONNX & ONNX Runtime Inference Engine Check
+    print("\n----- 6. ONNX Engine & Inference Session -----")
+    if installed.get("onnxruntime"):
+        import numpy as np
+        import onnxruntime as ort
+
+        try:
+            providers = ort.get_available_providers()
+
+            # End-to-end forward pass using an in-memory minimal graph if 'onnx' is available
+            if installed.get("onnx"):
+                import onnx
+                from onnx import TensorProto, helper
+
+                # Create dummy graph with Humanoid observation vector space (1x47)
+                x = helper.make_tensor_value_info(
+                    "observation", TensorProto.FLOAT, [1, 47]
+                )
+                y = helper.make_tensor_value_info(
+                    "action", TensorProto.FLOAT, [1, 47]
+                )
+                node = helper.make_node(
+                    "Identity", ["observation"], ["action"]
+                )
+                graph = helper.make_graph([node], "onnx_diag_test", [x], [y])
+                test_model = helper.make_model(graph)
+
+                session = ort.InferenceSession(
+                    test_model.SerializeToString(), providers=providers
+                )
+                dummy_input = np.zeros((1, 47), dtype=np.float32)
+                _ = session.run(None, {"observation": dummy_input})
+                print_status(
+                    "OK",
+                    f"ONNX Runtime session & forward pass active\n        Providers: {', '.join(providers)}.",
+                )
+            else:
+                print_status(
+                    "OK",
+                    f"ONNX Runtime ready\n       Providers: {', '.join(providers)}.",
+                )
+        except Exception as e:
+            print_status("FAIL", f"ONNX Runtime session execution failed: {e}")
 
     print("\n========================================")
     print("Diagnosis Complete.")

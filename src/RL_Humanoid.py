@@ -10,14 +10,14 @@ print(f"SB3 version: {sb3.__version__}")
 
 environment_name = "Humanoid-v5"
 episodes = 10
-frame_delay = 0.02 #The Playback FPS
+frame_delay = 0.02
 
 train_env = gym.make(environment_name)
 model = PPO("MlpPolicy", train_env, device="cuda", verbose=1)
 
 print(f"Environtment: {environment_name}")
 print(f"Model: {model.__class__.__name__}")
-# print(f"Model Epochs: {model.n_epochs}")
+print(f"Model Epochs: {model.n_epochs}")
 print(f"Episode: {episodes}")
 
 # 1. STATUS BEFORE TRAINING (Untrained Model)
@@ -45,7 +45,7 @@ test_env_before.close()
 
 # 2. TRAINING PHASE
 print("\nTraining Agent for 1.000.000 timesteps...")
-model.learn(total_timesteps=10_000)
+model.learn(total_timesteps=20_000)
 train_env.close()
 
 # 3. STATUS AFTER TRAINING (Trained Model)
@@ -79,9 +79,9 @@ avg_after = sum(after_scores) / len(after_scores)
 print("\n==========================================")
 print("             FINAL COMPARISON             ")
 print("==========================================")
-print(f"Average Score Before Training: {avg_before:.1f} / 500.0")
-print(f"Average Score After Training:  {avg_after:.1f} / 500.0")
-print(f"Differents:                    {avg_after - avg_before:.1f} points")
+print(f"Average Score Before Training: {avg_before:.1f} / 1000.0")
+print(f"Average Score After Training:  {avg_after:.1f} / 1000.0")
+print(f"Difference:                    {avg_after - avg_before:.1f} points")
 print("==========================================")
 
 
@@ -91,9 +91,8 @@ print("==========================================")
 print("\n--- EXPORTING TRAINED POLICY TO ONNX ---")
 
 # Ensure the target directory exists
-save_dir = "Model"
-os.makedirs(save_dir, exist_ok=True)
-onnx_filename = os.path.join(save_dir, "humanoid_ppo_policy_trained.onnx")
+os.makedirs("Model", exist_ok=True)
+onnx_filename = os.path.join("Model", "humanoid_ppo_policy_trained.onnx")
 
 class OnnxablePolicy(torch.nn.Module):
     def __init__(self, policy):
