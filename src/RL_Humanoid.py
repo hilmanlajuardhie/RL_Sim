@@ -45,7 +45,7 @@ test_env_before.close()
 
 # 2. TRAINING PHASE
 print("\nTraining Agent for 1.000.000 timesteps...")
-model.learn(total_timesteps=20_000)
+model.learn(total_timesteps=1_000_000)
 train_env.close()
 
 # 3. STATUS AFTER TRAINING (Trained Model)
@@ -92,7 +92,7 @@ print("\n--- EXPORTING TRAINED POLICY TO ONNX ---")
 
 # Ensure the target directory exists
 os.makedirs("Model", exist_ok=True)
-onnx_filename = os.path.join("Model", "humanoid_ppo_policy_trained.onnx")
+onnx_filename = os.path.join("Model", "humanoid_ppo_trained.onnx")
 
 class OnnxablePolicy(torch.nn.Module):
     def __init__(self, policy):
