@@ -4,7 +4,7 @@ import numpy as np
 import gymnasium as gym
 import onnxruntime as ort
 
-model_path = os.path.join("Model", "humanoid_ppo_trained.onnx")
+model_path = os.path.join("Model", "humanoid_ppo_trained-2M.onnx")
 if not os.path.exists(model_path):
     raise FileNotFoundError(f"Model file not found at '{model_path}'. Ensure the export step completed successfully.")
 
@@ -23,7 +23,7 @@ print(f"Input Node Name: '{input_name}' | Output Node Name: '{output_name}'\n")
 # Setup Gymnasium Humanoid Environment
 env = gym.make("Humanoid-v5", render_mode="human")
 episodes = 10
-frame_delay = 0.03
+frame_delay = 0.02
 
 # Real-Time Inference Loop
 for episode in range(1, episodes + 1):
