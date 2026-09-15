@@ -44,8 +44,8 @@ for eps in range(1, episodes + 1):
 test_env_before.close()
 
 # 2. TRAINING PHASE
-print("\nTraining Agent for 1.000.000 timesteps...")
-model.learn(total_timesteps=1_000_000)
+print("\nTraining Agent for 2.000.000 timesteps...")
+model.learn(total_timesteps=2_000_000)
 train_env.close()
 
 # 3. STATUS AFTER TRAINING (Trained Model)

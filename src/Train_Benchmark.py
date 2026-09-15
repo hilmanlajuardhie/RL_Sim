@@ -23,7 +23,7 @@ print(f"Input Node Name: '{input_name}' | Output Node Name: '{output_name}'\n")
 # Setup Gymnasium Humanoid Environment
 env = gym.make("Humanoid-v5", render_mode="human")
 episodes = 10
-frame_delay = 0.05
+frame_delay = 0.03
 
 # Real-Time Inference Loop
 for episode in range(1, episodes + 1):
