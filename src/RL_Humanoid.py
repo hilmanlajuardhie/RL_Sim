@@ -13,7 +13,7 @@ episodes = 10
 frame_delay = 0.02
 
 train_env = gym.make(environment_name)
-model = PPO("MlpPolicy", train_env, device="cuda", verbose=1)
+model = PPO("MlpPolicy", train_env, device="cpu", verbose=1)
 
 print(f"Environtment: {environment_name}")
 print(f"Model: {model.__class__.__name__}")
@@ -44,8 +44,8 @@ for eps in range(1, episodes + 1):
 test_env_before.close()
 
 # 2. TRAINING PHASE
-print("\nTraining Agent for 2.000.000 timesteps...")
-model.learn(total_timesteps=2_000_000)
+print("\nTraining Agent for 10.000 timesteps...")
+model.learn(total_timesteps=10_000)
 train_env.close()
 
 # 3. STATUS AFTER TRAINING (Trained Model)
